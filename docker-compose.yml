@@ -1,0 +1,32 @@
+services:
+
+  emotion-api:
+    build: .
+    container_name: emotion-api
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  emotion-worker:
+    build: .
+    container_name: emotion-worker
+    env_file:
+      - .env
+    command: celery -A celery_app.celery worker --loglevel=info --pool=solo
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: emotion-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

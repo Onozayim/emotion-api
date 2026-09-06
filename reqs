@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+python-dotenv
+pydantic
+sqlalchemy
+pymysql
+numpy
+tensorflow
+nltk
+beautifulsoup4
+redis
+celery
