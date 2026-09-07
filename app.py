@@ -21,7 +21,7 @@ class PredictionRequest(BaseModel):
 
 @app.post("/predict")
 def predict(req: list[Email]):
-
+    print("ENDPOIN HIT")
     emails = [
         {
             "body": email.body,
