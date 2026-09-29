@@ -1,11 +1,11 @@
 import json
-from datetime import datetime, timezone
 
 import models
 from analyzer import predict_emotion
 from celery_app import celery
 from database import SessionLocal
 from model_loader import model, tokenizer
+from services.survey_service import create_or_update_survey_answer
 
 
 @celery.task
@@ -40,26 +40,37 @@ def process_emails(emails):
             )
 
             new_email = models.Email(
-                body=email["body"],
-                subject=email["subject"],
-                from_email=email["from_email"],
-                emotion=primary_emotion,
-                secondary_emotion=secondary_emotion,
-                compound_emotion=compound_emotion,
+                body=email["body"].strip(),
+                subject=email["subject"].strip(),
+                from_email=email["from_email"].strip(),
+                emotion=primary_emotion.strip(),
+                secondary_emotion=secondary_emotion.strip(),
+                compound_emotion=compound_emotion.strip(),
+                created_at=email["received_at"]
             )
 
             db.add(new_email)
 
+            db.flush()
+
+            create_or_update_survey_answer(
+                db=db,
+                email_address=email["from_email"],
+                emotion=primary_emotion
+            )
+
             stats = (
                 db.query(models.EmailCount)
                 .filter(
-                    models.EmailCount.created_at == datetime.now(timezone.utc).today()
+                    models.EmailCount.created_at == email["received_at"]
                 )
                 .first()
             )
 
             if not stats:
-                stats = models.EmailCount()
+                stats = models.EmailCount(
+                    created_at=email["received_at"]
+                )
                 db.add(stats)
                 db.flush()
 
