@@ -10,3 +10,7 @@ nltk
 beautifulsoup4
 redis
 celery
+beautifulsoup4
+langdetect
+deep-translator
+boto3

@@ -2,7 +2,6 @@ import uuid
 import enum
 
 from sqlalchemy import (
-    BigInteger,
     Column,
     Date,
     DateTime,
@@ -10,6 +9,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
     func,
     Enum
 )
@@ -35,6 +35,10 @@ class Email(Base):
 
 class EmailCount(Base):
     __tablename__ = "emails_count"
+
+    __table_args__ = (
+        UniqueConstraint("created_at", name="uq_emails_count_date"),
+    )
     
     id = Column(Integer, primary_key=True)
     joy = Column(Integer, nullable=False, default=0)
@@ -47,6 +51,7 @@ class EmailCount(Base):
     sec_anger = Column(Integer, nullable=False, default=0)
     sec_fear = Column(Integer, nullable=False, default=0)
     sec_disgust = Column(Integer, nullable=False, default=0)
+    surprise = Column(Integer, nullable=False, default=0)
     nostalgia = Column(Integer, nullable=False, default=0)
     intrigue = Column(Integer, nullable=False, default=0)
     justice = Column(Integer, nullable=False, default=0)
@@ -180,3 +185,35 @@ class SurveyAnswer(Base):
         "SurveyTemplate",
         back_populates="answers"
     )
+
+class FailedEmail(Base):
+    __tablename__ = "failed_emails"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    task_id = Column(String(255), unique=True, nullable=False)
+
+    from_email = Column(String(255), nullable=True)
+    subject = Column(Text, nullable=True)
+    body = Column(Text, nullable=True)
+
+    received_at = Column(DateTime(timezone=True), nullable=True)
+
+    error_type = Column(String(255), nullable=False)
+    error_message = Column(Text, nullable=False)
+
+    attempts = Column(Integer, nullable=False, default=1)
+
+    status = Column(
+        String(30),
+        nullable=False,
+        default="failed"
+    )
+
+    failed_at = Column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False
+    )
+
+    resolved_at = Column(DateTime, nullable=True)

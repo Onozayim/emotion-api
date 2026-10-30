@@ -15,6 +15,7 @@ services:
     container_name: emotion-worker
     env_file:
       - .env
+
     command: celery -A celery_app.celery worker --loglevel=info --pool=solo
     depends_on:
       - redis

@@ -28,7 +28,9 @@ def predict(req: list[Email]):
             "body": email.body,
             "subject": email.subject,
             "from_email": email.from_email,
-            "received_at": email.received_at
+            "received_at": email.received_at.isoformat()
+                if isinstance(email.received_at, datetime)
+                else email.received_at,
         }
         for email in req
     ]
