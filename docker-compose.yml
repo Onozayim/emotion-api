@@ -15,7 +15,8 @@ services:
     container_name: emotion-worker
     env_file:
       - .env
-
+    environment:
+      AWS_DEFAULT_REGION: us-east-1
     command: celery -A celery_app.celery worker --loglevel=info --pool=solo
     depends_on:
       - redis
